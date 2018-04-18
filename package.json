@@ -1,0 +1,29 @@
+{
+  "name": "search-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "DEBUG=* nodemon server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/4edorov/search-app.git"
+  },
+  "engine": {
+    "node": "8.x"
+  },
+  "author": "4edorov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/4edorov/search-app/issues"
+  },
+  "homepage": "https://github.com/4edorov/search-app#readme",
+  "dependencies": {
+    "debug-levels": "^0.2.0",
+    "express": "^4.16.3",
+    "mongodb": "^3.0.7",
+    "nodemon": "^1.17.3"
+  }
+}

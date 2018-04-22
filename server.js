@@ -8,9 +8,22 @@ const app = express()
 
 const port = process.env.PORT || 3000
 
+const processData = items => {
+  return items.map(item => {
+    return {
+      url: item.link,
+      snippet: item.snippet,
+      thumbnail: item.image.thumbnailLink
+    }
+  })
+}
+
 app.get('/api/imagesearch/*', async (req, res) => {
   const query = req.params['0'].trim()
-  const offset = parseInt(req.query.offset, 10) || 10
+  let offset = parseInt(req.query.offset, 10) || 10
+  if (offset > 10) {
+    offset = 10
+  }
   debug.debug('query:', query, 'offset:', offset)
 
   if (!query) {
@@ -21,7 +34,7 @@ app.get('/api/imagesearch/*', async (req, res) => {
 
   const historyData = {
     query,
-    careatedAt: new Date()
+    createdAt: new Date()
   }
 
   const coll = DbConn.getColl()
@@ -38,8 +51,16 @@ app.get('/api/imagesearch/*', async (req, res) => {
     response.on('end', () => {
       try {
         const parsedData = JSON.parse(data)
-        debug.debug('data', parsedData)
-        res.json(parsedData)
+
+        if (!parsedData.items) {
+          res.json({message: 'there is no results'})
+          return
+        }
+
+        const result = processData(parsedData.items)
+        debug.debug('result:', result)
+
+        res.json(result)
       } catch (error) {
         debug.error('ERROR', error)
       }
@@ -51,7 +72,7 @@ app.get('/api/imagesearch/*', async (req, res) => {
 
 app.get('/api/latest/imagesearch', async (req, res) => {
   const coll = DbConn.getColl()
-  const mongoRes = await coll.find().sort({createdAt: 1}).limit(10)
+  const mongoRes = await coll.find().sort({createdAt: -1}).limit(10)
   const latestQueries = await mongoRes.toArray()
   debug.debug('latestQueries', latestQueries)
 

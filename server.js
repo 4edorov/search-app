@@ -13,17 +13,15 @@ const processData = items => {
     return {
       url: item.link,
       snippet: item.snippet,
-      thumbnail: item.image.thumbnailLink
+      thumbnail: item.image.thumbnailLink,
+      context: item.image.contextLink
     }
   })
 }
 
 app.get('/api/imagesearch/*', async (req, res) => {
   const query = req.params['0'].trim()
-  let offset = parseInt(req.query.offset, 10) || 10
-  if (offset > 10) {
-    offset = 10
-  }
+  let offset = parseInt(req.query.offset, 10) || 1
   debug.debug('query:', query, 'offset:', offset)
 
   if (!query) {
@@ -40,7 +38,7 @@ app.get('/api/imagesearch/*', async (req, res) => {
   const coll = DbConn.getColl()
   await coll.insert(historyData)
 
-  const searchEngineUri = `https://www.googleapis.com/customsearch/v1?key=${process.env.GOOGLE_API_KEY}&cx=${process.env.GOOGLE_CX}&q=${query}&searchType=image&num=${offset}`
+  const searchEngineUri = `https://www.googleapis.com/customsearch/v1?key=${process.env.GOOGLE_API_KEY}&cx=${process.env.GOOGLE_CX}&q=${query}&searchType=image&start=${offset}`
   https.get(searchEngineUri, response => {
     let data = ''
 
@@ -56,7 +54,7 @@ app.get('/api/imagesearch/*', async (req, res) => {
           res.json({message: 'there is no results'})
           return
         }
-
+        
         const result = processData(parsedData.items)
         debug.debug('result:', result)
 
